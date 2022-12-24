@@ -39,6 +39,22 @@ async function run() {
       const result = await blogsCollections.insertOne(doc)();
       res.send(blogs);
     });
+
+    //  update a blogs
+    app.get("/update-blogs/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: ObjectId(id) };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: {},
+      };
+      const result = await blogsCollections.updateOne(
+        filter,
+        updateDoc,
+        options
+      );
+      res.send(blogs);
+    });
   } finally {
     // await client.close();
   }
