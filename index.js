@@ -32,28 +32,49 @@ async function run() {
       res.send(result);
     });
 
+    // get one blogs
+    app.get("/all-blog/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const cursor = await blogsCollections.find(query);
+      const result = await cursor.toArray();
+      res.send(result);
+    });
+
+    // delete blogs
+    app.delete("/delete-blog/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await blogsCollections.deleteOne(query);
+      res.send({ acknowledge: true, deletedCount: 1 });
+    });
+
     //  create new blogs
-    app.get("/create-blogs", async (req, res) => {
+    app.post("/create-blog", async (req, res) => {
       const blog = req.body;
-      const doc = { $set: {} };
-      const result = await blogsCollections.insertOne(doc)();
-      res.send(blogs);
+      const result = await blogsCollections.insertOne(blog);
+      res.send(result);
     });
 
     //  update a blogs
-    app.get("/update-blogs/:id", async (req, res) => {
+    app.patch("/update-blog/:id", async (req, res) => {
       const id = req.params.id;
+      const blog = req.body;
       const filter = { _id: ObjectId(id) };
       const options = { upsert: true };
       const updateDoc = {
-        $set: {},
+        $set: {
+          blogText: blog.blogText,
+          photoURL: blog.photoURL,
+          blogTittle: blog.blogTittle,
+        },
       };
       const result = await blogsCollections.updateOne(
         filter,
         updateDoc,
         options
       );
-      res.send(blogs);
+      res.send(result);
     });
   } finally {
     // await client.close();
