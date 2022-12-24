@@ -2,7 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const app = express();
 require("dotenv").config();
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const port = process.env.PORT || 5000;
 
 app.use(cors());
@@ -11,8 +11,6 @@ app.use(express.json());
 const uri = `mongodb+srv://${process.env.MongoDB_User}:${process.env.MongoDB_PASS}@cluster0.ugwei28.mongodb.net/?retryWrites=true&w=majority
 `;
 
-/* const uri = `mongodb+srv://my-blogging-database:206YxbGwGa5dtwdV@cluster0.ugwei28.mongodb.net/?retryWrites=true&w=majority`;
- */
 const client = new MongoClient(uri, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -26,10 +24,19 @@ async function run() {
     const blogsCollections = client.db("blogs").collection("blogs-collection");
     console.log("connect");
 
+    // get all blogs
     app.get("/all-blogs", async (req, res) => {
       const query = {};
       const cursor = await blogsCollections.find(query);
-      const blogs = await cursor.toArray();
+      const result = await cursor.toArray();
+      res.send(result);
+    });
+
+    //  create new blogs
+    app.get("/create-blogs", async (req, res) => {
+      const blog = req.body;
+      const doc = { $set: {} };
+      const result = await blogsCollections.insertOne(doc)();
       res.send(blogs);
     });
   } finally {
